@@ -2,13 +2,18 @@ const express = require("express");
 const noteRouter = express.Router();
 noteRouter.use(express.json());
 const { NoteModel } = require("../model/note.mode");
+const jwt = require("jsonwebtoken");
 require("dotenv");
 const { auth } = require("../middlewares/auth.middleware");
 noteRouter.use(auth); // middleware is checking that user is loged in or not
 
+//
 noteRouter.get("/", async (req, res) => {
+  const token = req.headers.authorization.split(" ")[1];
+  const decoded = jwt.verify(token, "masai");
+
   let query = req.query;
-  let notes = await NoteModel.find(query);
+  let notes = await NoteModel.find({ userID: decoded.userID });
   res.status(200).send(notes);
 });
 

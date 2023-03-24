@@ -8,11 +8,18 @@ require("dotenv");
 
 // adding userRouter
 userRouter.post("/register", async (req, res) => {
-  const { email, password, location, age } = req.body;
+  const { email, password, name, gender, phone, avatar } = req.body;
   // console.log(email);
   try {
     bcrypt.hash(password, 5, async (err, hash) => {
-      const user = new UserModel({ email, password: hash, location, age });
+      const user = new UserModel({
+        email,
+        password: hash,
+        name,
+        gender,
+        phone,
+        avatar,
+      });
       await user.save();
       res
         .status(200)
@@ -28,13 +35,13 @@ userRouter.post("/login", async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await UserModel.findOne({ email });
-    console.log(user);
+    // console.log(user);
     if (user) {
       bcrypt.compare(password, user.password, (err, result) => {
         if (result) {
           res.status(200).send({
             mgs: "Login Successful!!",
-            token: jwt.sign({ course: "backend" }, "masai"),
+            token: jwt.sign({ userID: user._id }, "masai"),
           });
         } else {
           res.status(400).send({ msg: "wrong Credentials" });
